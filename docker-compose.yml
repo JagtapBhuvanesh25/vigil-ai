@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ───────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile.backend
+    container_name: vigil-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - vigil_db:/app/data
+    environment:
+      - VIGIL_DB_URL=sqlite+aiosqlite:////app/data/vigil.db
+      - VIGIL_OLLAMA_URL=http://ollama:11434
+    env_file:
+      - .env
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  # ── Next.js Frontend ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: vigil-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ── Ollama LLM Server ─────────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vigil-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+
+  # ── PostgreSQL (Production — comment out for local SQLite dev) ────────────────
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: vigil-db
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: vigil
+  #     POSTGRES_PASSWORD: vigil_dev_password
+  #     POSTGRES_DB: vigildb
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  vigil_db:
+  ollama_models:
+  # postgres_data:

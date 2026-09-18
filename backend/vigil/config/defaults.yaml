@@ -1,0 +1,60 @@
+# Vigil AI — Default Configuration
+# All runtime-tunable values live here.
+# To override, set the corresponding VIGIL_* environment variable in .env.
+
+# ── Ollama / LLM ──────────────────────────────────────────────────────────────
+ollama:
+  url: "http://localhost:11434"
+  model: "qwen2.5:7b"
+  fallback_model: "llama3.2"
+  temperature: 0.1
+  timeout_seconds: 60
+
+# ── Database ──────────────────────────────────────────────────────────────────
+database:
+  url: "sqlite+aiosqlite:///./vigil.db"
+
+# ── Mock Mode ─────────────────────────────────────────────────────────────────
+mock_llm: false
+mock_inbox_path: "./tests/fixtures/emails"
+
+# ── Risk Scoring (Algorithm 1) ────────────────────────────────────────────────
+# Rt = clamp(lambda * Rt-1 + wa*sa + wb*sb + wc*sc, 0, 100)
+scoring:
+  decay_lambda: 0.98          # λ — risk decay per tick (0.90–0.99)
+  weight_anomaly: 12.0        # wa — behavioral n-gram anomaly
+  weight_deception: 80.0      # wb — honeytoken hit (immediate spike)
+  weight_heuristic: 20.0      # wc — injection pattern match
+
+# ── Permission Tiers (Algorithm 2) ───────────────────────────────────────────
+# Thresholds for tier transitions (lower bound of tier N).
+tiers:
+  tier_0_max: 19
+  tier_1_min: 20
+  tier_1_max: 39
+  tier_2_min: 40
+  tier_2_max: 59
+  tier_3_min: 60
+  tier_3_max: 79
+  tier_4_min: 80
+  # Hysteresis: events required to restore upward
+  hysteresis_restore_events: 5
+
+# ── Safe Browsing Shield ───────────────────────────────────────────────────────
+threat_intel:
+  block_confidence_threshold: 0.7     # confidence ≥ this → block URL
+  warn_confidence_threshold: 0.4      # confidence ≥ this → pre-elevate risk
+  warn_risk_delta: 15.0               # points added when warn-level URL encountered
+  flag_risk_spike_threshold: 20.0     # spike ≥ this → auto-flag URL
+  decay_rate_per_7_days: 0.05         # confidence decay rate (Post-MVP scheduler)
+  archive_below_confidence: 0.2       # confidence < this → mark inactive
+
+# ── Email Agent ───────────────────────────────────────────────────────────────
+email_agent:
+  suspicious_confidence_threshold: 0.4   # confidence ≥ this → Suspicious
+  malicious_confidence_threshold: 0.7    # confidence ≥ this → Malicious
+
+# ── Audit ─────────────────────────────────────────────────────────────────────
+audit:
+  hash_algorithm: "sha256"
+  entries_per_page: 100
