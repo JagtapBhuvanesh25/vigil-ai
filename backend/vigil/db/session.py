@@ -9,6 +9,8 @@ Rules.md: If the DB is unavailable at startup, log the error and refuse to start
 """
 
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
@@ -57,3 +59,26 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
+@asynccontextmanager
+async def get_async_session() -> AsyncIterator[AsyncSession]:
+    """Context manager: yield a database session for non-FastAPI code.
+
+    Used by containment engine modules (audit writer, session manager, etc.)
+    that need a DB session outside the FastAPI request lifecycle.
+
+    Example::
+        async with get_async_session() as db:
+            result = await db.execute(select(AuditLog))
+    """
+    factory = get_session_factory()
+    async with factory() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+

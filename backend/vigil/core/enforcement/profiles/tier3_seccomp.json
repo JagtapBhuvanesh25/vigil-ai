@@ -1,0 +1,15 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "errnoRet": 1,
+  "syscalls": [
+    {
+      "names": ["read", "pread64", "readv", "preadv", "lseek", "fstat",
+                "stat", "lstat", "getdents", "getdents64", "openat",
+                "close", "exit", "exit_group", "brk", "mmap", "munmap",
+                "rt_sigreturn", "rt_sigaction", "rt_sigprocmask",
+                "futex", "clock_gettime", "gettimeofday"],
+      "action": "SCMP_ACT_ALLOW",
+      "comment": "Tier 3 RED — read-only introspection only"
+    }
+  ]
+}

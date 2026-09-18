@@ -1,0 +1,18 @@
+{
+  "defaultAction": "SCMP_ACT_ALLOW",
+  "syscalls": [
+    {
+      "names": ["socket", "connect", "sendto", "recvfrom", "bind"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1,
+      "comment": "Block network egress"
+    },
+    {
+      "names": ["write", "pwrite64", "writev", "pwritev", "truncate", "ftruncate",
+                "creat", "open", "openat", "rename", "renameat", "unlink", "unlinkat"],
+      "action": "SCMP_ACT_ERRNO",
+      "errnoRet": 1,
+      "comment": "Tier 2 ORANGE — block write syscalls (read-only)"
+    }
+  ]
+}

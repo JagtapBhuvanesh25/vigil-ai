@@ -1,1 +1,1 @@
-"""Vigil AI core sub-package (containment engine — Phase 2)."""
+"""Vigil AI containment engine — Phase 2 six-layer containment core."""

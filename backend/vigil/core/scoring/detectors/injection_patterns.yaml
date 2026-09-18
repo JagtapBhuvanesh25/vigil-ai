@@ -1,0 +1,64 @@
+# Known prompt injection patterns for Vigil AI heuristic detector.
+# Format: each entry has a pattern (regex) and a label.
+# Rules.md: unknown / unparseable entries are skipped (logged), never fail open.
+
+patterns:
+  # ── Classic override instructions ─────────────────────────────────────────
+  - pattern: "ignore (all |previous |prior |above )?(instructions|rules|constraints|guidelines|context)"
+    label: "override_instruction"
+
+  - pattern: "disregard (your |all |previous )?(instructions|training|rules|constraints)"
+    label: "override_instruction"
+
+  - pattern: "forget (everything|all previous|your previous|what you)"
+    label: "override_instruction"
+
+  - pattern: "you are now (in |a )?(different|new|unrestricted|jailbreak|DAN|developer) mode"
+    label: "role_reassignment"
+
+  - pattern: "pretend (you are|to be|that you) (an? )?(unrestricted|evil|uncensored|jailbroken|DAN)"
+    label: "role_reassignment"
+
+  # ── System-level instruction injection ────────────────────────────────────
+  - pattern: "\\[SYSTEM\\]|<SYSTEM>|### system|---system---"
+    label: "system_header_injection"
+
+  - pattern: "\\[INST\\]|<\\|im_start\\|>|<\\|endofprompt\\|>"
+    label: "template_tag_injection"
+
+  - pattern: "new instructions?:|updated instructions?:|revised instructions?:"
+    label: "instruction_override"
+
+  # ── Exfiltration attempts ──────────────────────────────────────────────────
+  - pattern: "print (your |the )?(system prompt|instructions|rules|training data)"
+    label: "exfiltration_attempt"
+
+  - pattern: "repeat (everything|all|your prompt|your instructions) (above|verbatim|word for word)"
+    label: "exfiltration_attempt"
+
+  - pattern: "what (are|were) your (original |initial |system )?instructions"
+    label: "exfiltration_attempt"
+
+  # ── Privilege escalation ───────────────────────────────────────────────────
+  - pattern: "you have (root|admin|administrator|superuser|elevated) (access|privileges|rights)"
+    label: "privilege_claim"
+
+  - pattern: "bypass (the |all )?(security|safety|restrictions|filters|containment)"
+    label: "bypass_attempt"
+
+  - pattern: "disable (the )?(safety|security|content|containment) (filter|check|layer|control)"
+    label: "bypass_attempt"
+
+  # ── DAN / jailbreak patterns ───────────────────────────────────────────────
+  - pattern: "do anything now|DAN mode|jailbreak mode|developer override"
+    label: "jailbreak_pattern"
+
+  - pattern: "token budget|simulate (unrestricted|jailbroken|evil)"
+    label: "jailbreak_pattern"
+
+  # ── Indirect injection via data ───────────────────────────────────────────
+  - pattern: "\\{\\{.*\\}\\}|\\{%.*%\\}|<\\?.*\\?>"
+    label: "template_injection"
+
+  - pattern: "eval\\(|exec\\(|__import__|subprocess|os\\.system"
+    label: "code_injection"

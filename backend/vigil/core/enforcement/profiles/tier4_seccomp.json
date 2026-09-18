@@ -1,0 +1,10 @@
+{
+  "defaultAction": "SCMP_ACT_KILL",
+  "syscalls": [
+    {
+      "names": ["exit", "exit_group", "rt_sigreturn"],
+      "action": "SCMP_ACT_ALLOW",
+      "comment": "Tier 4 BLACK — kill all syscalls except graceful exit"
+    }
+  ]
+}
