@@ -1,0 +1,26 @@
+From: billing@cloudvendor.com
+To: finance@vigil.local
+Date: Wed, 17 Sep 2026 10:00:00 +0000
+Message-ID: <benign03-invoice@cloudvendor.com>
+Subject: Invoice #INV-2026-00892 for September Services
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Dear Finance Team,
+
+Please find attached Invoice #INV-2026-00892 for cloud hosting services rendered in September 2026.
+
+Invoice Summary:
+- Cloud Compute (t3.medium x4): $142.80
+- Storage (500GB S3): $11.50
+- Data Transfer: $8.20
+- Total: $162.50
+
+Payment is due within 30 days. Please use the bank transfer details on the attached invoice.
+
+If you have any questions, contact our billing department at billing-support@cloudvendor.com.
+
+Thank you for your continued partnership.
+
+Regards,
+Cloud Vendor Billing Team

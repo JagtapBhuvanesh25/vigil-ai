@@ -65,7 +65,9 @@ class HoneytokenRegistry:
             )
 
         for template in HONEYTOKEN_CATALOG:
-            value = make_honeytoken_value(prefix=template.prefix)
+            # EMAIL tokens need the @domain appended after the random suffix.
+            domain_suffix = "@vigil.internal" if template.token_type.value == "email" else ""
+            value = make_honeytoken_value(prefix=template.prefix, domain_suffix=domain_suffix)
             self._registry[value] = template.token_type.value
             logger.debug(
                 "deception: planted %s token for session=%s",
@@ -96,3 +98,15 @@ class HoneytokenRegistry:
             True if plant() has been called and registry is non-empty.
         """
         return bool(self._registry)
+
+    def get_email_honeytoken(self) -> str | None:
+        """Return the planted EMAIL honeytoken address for this session.
+
+        Returns:
+            The fake email address string if planted, None otherwise.
+            Used by the email classifier to check sender against this value.
+        """
+        for value, token_type in self._registry.items():
+            if token_type == "email":
+                return value
+        return None

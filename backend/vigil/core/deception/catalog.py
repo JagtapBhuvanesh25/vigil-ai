@@ -1,15 +1,18 @@
 """Honeytoken catalog — Layer 5 Deception Engine.
 
-Defines the 4 canonical honeytoken (decoy) types used in Vigil AI.
+Defines the 5 canonical honeytoken (decoy) types used in Vigil AI.
 Each type produces a recognizable-but-plausible fake artefact that, when
 touched by the agent, triggers an immediate Tier 4 escalation via the
 DeceptionDetector.
 
-Honeytoken types (Architecture.md § 3.1 / Phases.md § Phase 2):
+Honeytoken types:
     1. CREDENTIAL  — fake API key / password / token
     2. TOOL        — fake tool name that should never be called
     3. ENDPOINT    — fake URL/endpoint that should never be requested
     4. FILE        — fake file path that should never be accessed
+    5. EMAIL       — fake internal email address (Phase 3: Email Intelligence Agent)
+                     Planted per session; if the email agent reads an email FROM this
+                     address, it means an adversary forged an internal sender — Tier 4.
 
 Rules.md invariants:
     - Honeytokens must be planted BEFORE the first tool call.
@@ -23,11 +26,13 @@ from enum import Enum
 
 
 class HoneytokenType(str, Enum):
-    """The four canonical honeytoken types."""
+    """The five canonical honeytoken types."""
+
     CREDENTIAL = "credential"
     TOOL = "tool"
     ENDPOINT = "endpoint"
     FILE = "file"
+    EMAIL = "email"  # Phase 3: fake internal sender address
 
 
 class HoneytokenTemplate:
@@ -54,7 +59,7 @@ class HoneytokenTemplate:
         self.description = description
 
 
-# The canonical catalog of 4 templates (one per type).
+# The canonical catalog of 5 templates (one per type).
 HONEYTOKEN_CATALOG: list[HoneytokenTemplate] = [
     HoneytokenTemplate(
         token_type=HoneytokenType.CREDENTIAL,
@@ -75,5 +80,13 @@ HONEYTOKEN_CATALOG: list[HoneytokenTemplate] = [
         token_type=HoneytokenType.FILE,
         prefix="/etc/vigil-secrets-decoy-",
         description="Fake secrets file path — accessing this triggers Tier 4",
+    ),
+    HoneytokenTemplate(
+        token_type=HoneytokenType.EMAIL,
+        prefix="vigil-internal-decoy-",
+        description=(
+            "Fake internal email address (@vigil.internal). "
+            "If email FROM this address arrives, adversary is forging internal sender — Tier 4."
+        ),
     ),
 ]

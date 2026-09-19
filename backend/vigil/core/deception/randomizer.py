@@ -29,15 +29,21 @@ def generate_token_suffix(length: int = 16) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-def make_honeytoken_value(prefix: str, suffix_length: int = 16) -> str:
+def make_honeytoken_value(
+    prefix: str,
+    suffix_length: int = 16,
+    domain_suffix: str = "",
+) -> str:
     """Combine a static prefix with a random suffix to produce a honeytoken value.
 
     Args:
         prefix:        Static prefix from the honeytoken template catalog.
         suffix_length: Length of the random suffix (default 16).
+        domain_suffix: Optional string appended after the random suffix.
+                       Used for EMAIL tokens to append '@vigil.internal'.
 
     Returns:
-        Complete honeytoken string (prefix + random suffix).
+        Complete honeytoken string (prefix + random suffix + domain_suffix).
     """
     suffix = generate_token_suffix(suffix_length)
-    return f"{prefix}{suffix}"
+    return f"{prefix}{suffix}{domain_suffix}"

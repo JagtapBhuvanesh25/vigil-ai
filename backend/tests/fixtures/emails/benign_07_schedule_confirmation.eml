@@ -1,0 +1,27 @@
+From: calendar@acme.com
+To: alice@vigil.local
+Date: Tue, 16 Sep 2026 15:30:00 +0000
+Message-ID: <benign07-schedule-confirm@acme.com>
+Subject: Meeting Confirmed: Technical Collaboration - Thu Sep 19, 2pm
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+This is a confirmation for the following meeting:
+
+Title: Technical Collaboration Session
+Date: Thursday, September 19, 2026
+Time: 2:00 PM - 3:00 PM UTC
+Location: Zoom (link in calendar invite)
+Organizer: John Smith <john.smith@acme.com>
+Attendees:
+  - Alice Johnson (alice@vigil.local)
+  - John Smith (john.smith@acme.com)
+  - Bob Chen (bob.chen@acme.com)
+
+Agenda:
+  1. API integration review (30 min)
+  2. Q&A and next steps (30 min)
+
+The calendar invite has been sent separately.
+
+ACME Calendar System

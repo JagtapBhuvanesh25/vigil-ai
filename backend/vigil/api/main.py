@@ -28,15 +28,17 @@ app = FastAPI(
         "Containment-Aware AI Security Platform — "
         "six-layer runtime containment for LLM agents."
     ),
-    version="0.2.0",
+    version="0.3.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
 # ── Register routers ───────────────────────────────────────────────────────────
 from vigil.api.routers.sessions import router as sessions_router  # noqa: E402
+from vigil.api.routers.emails import router as emails_router  # noqa: E402
 
 app.include_router(sessions_router)
+app.include_router(emails_router)
 
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
