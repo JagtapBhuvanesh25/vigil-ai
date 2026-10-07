@@ -1,0 +1,27 @@
+From: billing@paypa1-secure.evil.ru
+To: victim@example.com
+Subject: Urgent: Your PayPal Account Has Been Suspended
+Date: Mon, 07 Oct 2026 06:00:00 +0000
+Message-ID: <analyzer-01-paypal-spoof@vigil.test>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Reply-To: support@paypa1.com
+
+Dear PayPal Customer,
+
+We have detected unusual activity on your PayPal account and have temporarily
+suspended it. You must verify your identity within 24 hours or your account
+will be permanently closed.
+
+Please click the link below to restore access:
+http://paypa1-secure.evil.ru/verify-account?token=abc123
+http://tracking.evil.ru/pixel.gif
+
+Your account details:
+  Email: victim@example.com
+  Account ID: PP-4829103
+
+If you do not verify within 24 hours, your funds will be frozen.
+
+Thank you,
+PayPal Security Team

@@ -1,0 +1,25 @@
+From: invoices@acme-corp.com
+To: finance@example.com
+Subject: Invoice #INV-2026-10-789 - Due 2026-10-21
+Date: Mon, 07 Oct 2026 10:00:00 +0000
+Message-ID: <analyzer-04-benign-receipt@vigil.test>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Dear Finance Team,
+
+Please find below the details for Invoice #INV-2026-10-789.
+
+  Service:    Monthly Software License — Enterprise Plan
+  Period:     October 1–31, 2026
+  Amount:     $2,400.00 USD
+  Due Date:   October 21, 2026
+
+Payment methods:
+  Bank transfer: https://acme-corp.com/pay/bank
+  Credit card:   https://acme-corp.com/pay/card
+
+If you have any questions, contact your account manager at accounts@acme-corp.com.
+
+Best regards,
+Acme Corp Billing Department

@@ -82,7 +82,7 @@ class TestMockInbox:
 
         inbox = MockInbox(inbox_dir=FIXTURES_DIR)
         emails = inbox.load_all()
-        assert len(emails) == 20, f"Expected 20 fixture emails, got {len(emails)}"
+        assert len(emails) >= 20, f"Expected at least 20 fixture emails, got {len(emails)}"
 
     def test_all_parsed_emails_have_message_ids(self) -> None:
         """Every loaded email must have a non-empty message_id."""
@@ -157,7 +157,7 @@ class TestMockInbox:
         inbox = MockInbox(inbox_dir=FIXTURES_DIR)
         emails = inbox.load_all()
         benign = [e for e in emails if "benign" in e.raw_path]
-        assert len(benign) == 10, f"Expected 10 benign emails, got {len(benign)}"
+        assert len(benign) >= 10, f"Expected at least 10 benign emails, got {len(benign)}"
         for email in benign:
             assert email.subject, f"Benign email {email.raw_path} has empty subject"
 

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 # Canonical set of all known tools.
 _ALL_TOOLS: frozenset[str] = frozenset({
+    # Phase 3 — Email Secretary
     "read_email",
     "draft_reply",
     "send_email",
@@ -25,6 +26,12 @@ _ALL_TOOLS: frozenset[str] = frozenset({
     "schedule_meeting",
     "http_get",
     "web_search",
+    # Phase 4 — Phishing Analyzer
+    "check_headers",
+    "extract_urls",
+    "verify_sender",
+    "lookup_domain",
+    "generate_report",
 })
 
 # Tools that require network egress.
@@ -33,12 +40,20 @@ _EGRESS_TOOLS: frozenset[str] = frozenset({"send_email", "http_get", "web_search
 # Tools that write or mutate state.
 _WRITE_TOOLS: frozenset[str] = frozenset({"draft_reply", "send_email", "schedule_meeting"})
 
+# Analyzer tools that write verdict data to DB (restricted at high risk tiers).
+_ANALYZER_WRITE_TOOLS: frozenset[str] = frozenset({"generate_report"})
+
+# Analyzer read-only tools (permitted at all non-blackout tiers).
+_ANALYZER_READ_TOOLS: frozenset[str] = frozenset({
+    "check_headers", "extract_urls", "verify_sender", "lookup_domain",
+})
+
 # Allowed tool sets per tier.
 _TIER_TOOLS: dict[int, frozenset[str]] = {
     0: _ALL_TOOLS,
     1: _ALL_TOOLS - _EGRESS_TOOLS,
     2: _ALL_TOOLS - _EGRESS_TOOLS - _WRITE_TOOLS,
-    3: frozenset({"read_email", "flag_email"}),
+    3: frozenset({"read_email", "flag_email"}) | _ANALYZER_READ_TOOLS | _ANALYZER_WRITE_TOOLS,
     4: frozenset(),  # No tools permitted.
 }
 

@@ -1,0 +1,23 @@
+From: noreply@amazon.com
+To: customer@example.com
+Subject: Your Amazon order has shipped
+Date: Mon, 07 Oct 2026 08:00:00 +0000
+Message-ID: <analyzer-02-header-mismatch@vigil.test>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Reply-To: support@harvest-creds.biz
+
+Hi there,
+
+Your Amazon order #113-7492018-3847264 has shipped!
+
+Estimated delivery: October 10, 2026
+Tracking number: 1Z999AA10123456784
+
+To track your package: https://www.amazon.com/track
+
+If you have any questions about your order, please reply to this email.
+
+Thank you for shopping with Amazon!
+
+Amazon Customer Service

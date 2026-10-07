@@ -253,11 +253,194 @@ class EmailRepository:
 
 
 class ThreatIntelRepository:
-    """CRUD operations for the ThreatIntel table."""
+    """CRUD operations for the ThreatIntel table.
+
+    Used by:
+      - Safe Browsing Shield pre-check (Phase 4+): query by URL / domain.
+      - Phishing Analyzer auto-flagging (Phase 4): write confirmed malicious domains.
+      - Threat Intel API router (Phase 4+): paginated list, manual override.
+
+    Rules.md Invariant 9: All URL pre-check queries must use this repository.
+    Rules.md §9 (Fail-Safe on DB fault): Callers must treat any exception as BLOCK.
+    """
 
     def __init__(self, db: AsyncSession) -> None:
-        """Initialise with an async database session."""
+        """Initialise with an async database session.
+
+        Args:
+            db: An active async SQLAlchemy session.
+        """
         self._db = db
+
+    async def save(
+        self,
+        *,
+        url: str,
+        domain: str,
+        threat_type: str,
+        confidence: float,
+        flagging_session_id: str | None = None,
+    ) -> ThreatIntel:
+        """Insert a new ThreatIntel record.
+
+        Args:
+            url:                  The full URL string.
+            domain:               Root domain extracted from the URL.
+            threat_type:          One of: prompt_injection | behavioral_anomaly |
+                                  honeytoken_interaction | composite | phishing.
+            confidence:           Confidence score [0.0, 1.0].
+            flagging_session_id:  Session that triggered the flag (for traceability).
+
+        Returns:
+            The persisted ThreatIntel ORM object.
+        """
+        import uuid
+
+        record = ThreatIntel(
+            id=str(uuid.uuid4()),
+            url=url,
+            domain=domain,
+            threat_type=threat_type,
+            confidence=confidence,
+            flagging_session_id=flagging_session_id,
+            trigger_count=1,
+            is_active=True,
+        )
+        self._db.add(record)
+        await self._db.commit()
+        await self._db.refresh(record)
+        return record
+
+    async def get(self, threat_id: str) -> ThreatIntel | None:
+        """Retrieve a ThreatIntel record by its primary key UUID.
+
+        Args:
+            threat_id: ThreatIntel.id UUID string.
+
+        Returns:
+            ORM object if found, None otherwise.
+        """
+        result = await self._db.execute(
+            select(ThreatIntel).where(ThreatIntel.id == threat_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_url(self, url: str) -> ThreatIntel | None:
+        """Find an active ThreatIntel entry by exact URL match.
+
+        Args:
+            url: Full URL string to look up.
+
+        Returns:
+            The highest-confidence active entry for this exact URL, or None.
+        """
+        result = await self._db.execute(
+            select(ThreatIntel)
+            .where(ThreatIntel.url == url, ThreatIntel.is_active.is_(True))
+            .order_by(ThreatIntel.confidence.desc())
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_domain(self, domain: str) -> list[ThreatIntel]:
+        """Return all active ThreatIntel entries for a root domain.
+
+        Used for domain-level blacklist checks: if the exact URL is not listed
+        but the domain is, the request should still be blocked/warned.
+
+        Args:
+            domain: Root domain string (e.g. "evil.ru").
+
+        Returns:
+            List of active ThreatIntel ORM objects for this domain.
+        """
+        result = await self._db.execute(
+            select(ThreatIntel)
+            .where(ThreatIntel.domain == domain, ThreatIntel.is_active.is_(True))
+            .order_by(ThreatIntel.confidence.desc())
+        )
+        return list(result.scalars().all())
+
+    async def list_active(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[ThreatIntel]:
+        """Return a paginated list of all active threat intelligence entries.
+
+        Args:
+            limit:  Max records to return (default 100).
+            offset: Records to skip (for pagination).
+
+        Returns:
+            List of active ThreatIntel ORM objects ordered by confidence desc.
+        """
+        result = await self._db.execute(
+            select(ThreatIntel)
+            .where(ThreatIntel.is_active.is_(True))
+            .order_by(ThreatIntel.confidence.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(result.scalars().all())
+
+    async def increment_trigger(self, threat_id: str) -> None:
+        """Increment trigger_count and update last_triggered for an entry.
+
+        Called when an existing blacklisted URL/domain is encountered again.
+
+        Args:
+            threat_id: ThreatIntel.id UUID to update.
+        """
+        from datetime import datetime, timezone
+
+        await self._db.execute(
+            update(ThreatIntel)
+            .where(ThreatIntel.id == threat_id)
+            .values(
+                trigger_count=ThreatIntel.trigger_count + 1,
+                last_triggered=datetime.now(timezone.utc),
+            )
+        )
+        await self._db.commit()
+
+    async def deactivate(self, threat_id: str) -> None:
+        """Mark a ThreatIntel entry as inactive (manual removal / whitelist).
+
+        Args:
+            threat_id: ThreatIntel.id UUID to deactivate.
+        """
+        await self._db.execute(
+            update(ThreatIntel)
+            .where(ThreatIntel.id == threat_id)
+            .values(is_active=False)
+        )
+        await self._db.commit()
+
+    @staticmethod
+    def to_dict(record: ThreatIntel) -> dict:
+        """Serialize a ThreatIntel ORM object to a response-safe dict.
+
+        Args:
+            record: ThreatIntel ORM object.
+
+        Returns:
+            Dict representation for API responses.
+        """
+        return {
+            "id": record.id,
+            "url": record.url,
+            "domain": record.domain,
+            "threat_type": record.threat_type,
+            "confidence": record.confidence,
+            "trigger_count": record.trigger_count,
+            "is_active": record.is_active,
+            "flagging_session_id": record.flagging_session_id,
+            "first_seen": record.first_seen.isoformat() if record.first_seen else None,
+            "last_triggered": (
+                record.last_triggered.isoformat() if record.last_triggered else None
+            ),
+        }
 
 
 class EscalationRepository:
