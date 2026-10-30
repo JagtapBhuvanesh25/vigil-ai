@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Geist } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+import { ClientProviders } from "./ClientProviders";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,8 +18,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Vigil AI — Containment-Aware AI Security Platform",
   description:
-    "Vigil AI monitors and contains AI agent actions in real-time using a six-layer containment engine. Detect phishing, analyze threats, and enforce runtime security policies.",
-  keywords: ["AI security", "containment", "phishing detection", "LLM safety"],
+    "Vigil AI monitors and contains AI agent actions in real-time using a six-layer containment engine. Detect phishing, analyse threats, and enforce runtime security policies.",
+  keywords: ["AI security", "containment", "phishing detection", "LLM safety", "prompt injection"],
 };
 
 export default function RootLayout({
@@ -32,12 +30,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", inter.variable, jetbrainsMono.variable, "font-sans", geist.variable)}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      style={{ colorScheme: "dark" }}
     >
-      <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
-        {children}
+      <body className="h-full flex" style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );
 }
-
